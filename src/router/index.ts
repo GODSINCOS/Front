@@ -1,6 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 
+import DynamicListView from '../views/new/DynamicListView.vue'
+import DynamicAddView from '../views/new/DynamicAddView.vue'
+import DynamicEditView from '../views/new/DynamicEditView.vue'
+import DynamicDetailView from '../views/new/DynamicDetailView.vue'
+
 const routes: RouteRecordRaw[] = [
   {
     path: '/login',
@@ -34,32 +39,34 @@ const routes: RouteRecordRaw[] = [
       {
         path: 'system',
         name: 'System',
-        redirect: '/system/user',
+        redirect: '/dashboard/dynamics',
         meta: { title: '系统管理', icon: 'Setting' },
         children: [
           {
-            path: 'user',
-            name: 'User',
-            component: () => import('../views/system/user/manage.vue'),
-            meta: { title: '用户管理', icon: 'UserFilled', parent: '系统管理' }
+            path: '/dashboard/dynamics',
+            name: 'Dynamics',
+            component: DynamicListView,
+            meta: { title: '行业动态管理', icon: 'Promotion' }
           },
           {
-            path: 'industry',
-            name: 'Industry',
-            component: () => import('../views/system/industry/manage.vue'),
-            meta: { title: '行业动态管理', icon: 'Promotion', parent: '系统管理' }
+            path: '/dashboard/dynamics/add',
+            name: 'DynamicsAdd',
+            component: DynamicAddView,
+            meta: { title: '新增新闻' }
           },
           {
-            path: 'course',
-            name: 'Course',
-            component: () => import('../views/system/course/manage.vue'),
-            meta: { title: '课程管理', icon: 'Reading', parent: '系统管理' }
+            path: '/dashboard/dynamics/edit/:id',
+            name: 'DynamicsEdit',
+            component: DynamicEditView,
+            props: true,
+            meta: { title: '编辑新闻' }
           },
           {
-            path: 'meeting',
-            name: 'Meeting',
-            component: () => import('../views/dashboard/home.vue'),
-            meta: { title: '会议管理', icon: 'Calendar', parent: '系统管理' }
+            path: '/dashboard/dynamics/detail/:id',
+            name: 'DynamicsDetail',
+            component: DynamicDetailView,
+            props: true,
+            meta: { title: '新闻详情' }
           }
         ]
       }
@@ -67,23 +74,23 @@ const routes: RouteRecordRaw[] = [
   }
 ]
 
+// // 路由守卫
+// router.beforeEach((to, from, next) => {
+//   // 设置页面标题
+//   document.title = `${to.meta.title} - 测盟汇管理系统`
+
+//   // 判断是否需要登录权限
+//   const token = localStorage.getItem('token')
+//   if (to.path !== '/login' && to.path !== '/register' && !token) {
+//     next('/login')
+//   } else {
+//     next()
+//   }
+// })
+
 const router = createRouter({
   history: createWebHistory(),
   routes
-})
-
-// 路由守卫
-router.beforeEach((to, from, next) => {
-  // 设置页面标题
-  document.title = `${to.meta.title} - 测盟汇管理系统`
-
-  // 判断是否需要登录权限
-  const token = localStorage.getItem('token')
-  if (to.path !== '/login' && to.path !== '/register' && !token) {
-    next('/login')
-  } else {
-    next()
-  }
 })
 
 export default router

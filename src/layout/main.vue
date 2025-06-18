@@ -28,7 +28,7 @@
             <el-icon><UserFilled /></el-icon>
             <span>用户管理</span>
           </el-menu-item>
-          <el-menu-item index="/system/industry">
+          <el-menu-item index="/dashboard/dynamics">
             <el-icon><Promotion /></el-icon>
             <span>行业动态管理</span>
           </el-menu-item>
