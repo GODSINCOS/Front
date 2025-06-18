@@ -1,4 +1,3 @@
-
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import EmelentPlus from 'element-plus'
@@ -21,7 +20,8 @@ for (const [key, component] of Object.entries(ElementPlusIconsVue)) {
 }
 //全局组件
 app.component("Echarts",Echarts) 
-app.use(createPinia())
+const pinia = createPinia()
+app.use(pinia)
 app.use(router)
 app.use(EmelentPlus)
 app.mount('#app')
