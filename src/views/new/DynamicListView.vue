@@ -122,10 +122,21 @@ const handleBatchDelete = () => {
     '提示',
     { type: 'warning' }
   ).then(async () => {
+    let hasError = false
+    let errorMsg = ''
     for (const row of selectedRows.value) {
-      await deleteNewsItem(row.id)
+      const res = await deleteNewsItem(row.id)
+      if (!res.success) {
+        hasError = true
+        errorMsg = res.message || '删除失败'
+        break
+      }
     }
-    ElMessage.success('删除成功')
+    if (hasError) {
+      ElMessageBox.alert(errorMsg, '删除失败', { type: 'error' })
+    } else {
+      ElMessage.success('删除成功')
+    }
     fetchList()
   }).catch(() => {})
 }
@@ -138,9 +149,13 @@ const confirmDelete = (id) => {
   ElMessageBox.confirm('是否确认删除该新闻？', '提示', {
     type: 'warning'
   }).then(async () => {
-    await deleteNewsItem(id)
-    ElMessage.success('删除成功')
-    fetchList()
+    const res = await deleteNewsItem(id)
+    if (res.success) {
+      ElMessage.success('删除成功')
+      fetchList()
+    } else {
+      ElMessageBox.alert(res.message || '删除失败', '删除失败', { type: 'error' })
+    }
   }).catch(() => {})
 }
 const handleSelectionChange = (rows) => {
