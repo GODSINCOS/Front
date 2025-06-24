@@ -1,5 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
+import { useUserStore } from '@/stores/user'
+import { ElMessage } from 'element-plus'
 
 import DynamicListView from '../views/new/DynamicListView.vue'
 import DynamicAddView from '../views/new/DynamicAddView.vue'
@@ -103,8 +105,12 @@ router.beforeEach((to, from, next) => {
   document.title = `${to.meta.title} - 测盟汇管理系统`
 
   // 判断是否需要登录权限
-  const token = localStorage.getItem('token')
-  if (to.path !== '/login' && to.path !== '/register' && !token) {
+  const userStore = useUserStore()
+  const token = userStore.token || localStorage.getItem('token')
+  const whiteList = ['/login', '/register']
+
+  if (!whiteList.includes(to.path) && (!token || token === '')) {
+    ElMessage.warning('请先登录')
     next('/login')
     return
   }

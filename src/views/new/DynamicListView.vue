@@ -60,10 +60,12 @@
           >删除</el-button>
         </template>
       </el-table-column>
-      <el-table-column v-if="isAdmin" label="审核" width="180">
+      <el-table-column label="审核状态" width="100">
         <template #default="{ row }">
-          <el-button v-if="row.status === 0" size="small" type="success" @click="handleAudit(row, 1)">通过</el-button>
-          <el-button v-if="row.status === 0" size="small" type="danger" @click="handleAudit(row, 2)">拒绝</el-button>
+          <span v-if="row.status === 1">已通过</span>
+          <span v-else-if="row.status === 0">待审核</span>
+          <span v-else-if="row.status === 2">已拒绝</span>
+          <span v-else>未知</span>
         </template>
       </el-table-column>
     </el-table>
