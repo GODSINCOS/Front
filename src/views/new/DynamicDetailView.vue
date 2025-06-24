@@ -27,17 +27,25 @@
         v-html="news.content"
       />
     </div>
+    <div class="mt-4" v-if="isAdmin">
+      <el-button type="success" @click="editNews">编辑</el-button>
+      <el-button type="danger" @click="confirmDelete">删除</el-button>
+    </div>
   </el-card>
 </template>
 
 <script setup>
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { getNewsDetail } from '@/api/news'
+import { getNewsDetail, deleteNewsItem } from '@/api/news'
+import { ElMessageBox, ElMessage } from 'element-plus'
+import { useUserStore } from '@/stores/user'
 
 const route = useRoute()
 const router = useRouter()
 const news = ref({})
+const userStore = useUserStore()
+const isAdmin = userStore.userInfo && userStore.userInfo.roles && userStore.userInfo.roles.includes('ROLE_ADMIN')
 
 // 获取新闻 ID
 const id = route.params.id
@@ -56,6 +64,24 @@ const fetchDetail = async () => {
 const goBack = () => {
   // 返回到新闻列表页面
   router.push('/dashboard/dynamics')
+}
+
+const editNews = () => {
+  router.push(`/system/dynamics/edit/${id}`)
+}
+
+const confirmDelete = () => {
+  ElMessageBox.confirm('是否确认删除该新闻？', '提示', {
+    type: 'warning'
+  }).then(async () => {
+    const res = await deleteNewsItem(id)
+    if (res.success) {
+      ElMessage.success('删除成功')
+      router.push('/dashboard/dynamics')
+    } else {
+      ElMessageBox.alert(res.message || '删除失败', '删除失败', { type: 'error' })
+    }
+  }).catch(() => {})
 }
 
 onMounted(fetchDetail)

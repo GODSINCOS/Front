@@ -19,15 +19,17 @@
 
     <!-- ✅ 四个操作按钮区域，放在搜索下方，表格上方 -->
     <el-space class="mb-3">
-      <el-button type="primary" plain @click="handleAdd">新增</el-button>
-      <el-button type="success" plain @click="handleEdit">修改</el-button>
-      <el-button type="danger" plain @click="handleBatchDelete">删除</el-button>
+      <el-button type="primary" plain @click="handleAdd">发布动态</el-button>
+      <el-button type="success" plain @click="handleEdit" v-if="isAdmin">修改</el-button>
+      <el-button type="danger" plain @click="handleBatchDelete" v-if="isAdmin">删除</el-button>
       <el-button type="warning" plain @click="handleExport">导出</el-button>
+      <el-button v-if="!isAdmin" type="info" plain @click="goToMyNews">我的动态管理</el-button>
+      <el-button v-if="isAdmin" type="warning" plain @click="goToAudit">审核动态</el-button>
     </el-space>
 
     <!-- 📋 新闻数据表格 -->
     <el-table
-      :data="newsList"
+      :data="filteredNewsList"
       border
       style="width: 100%"
       @selection-change="handleSelectionChange"
@@ -36,12 +38,32 @@
       <el-table-column prop="title" label="新闻标题" />
       <el-table-column prop="author" label="作者" />
       <el-table-column prop="summary" label="新闻简介" />
-      <el-table-column prop="createTime" label="创建时间" />
-      <el-table-column label="操作" width="220">
+      <el-table-column prop="createTime" label="创建时间">
+        <template #default="{ row }">
+          {{ dayjs(row.createTime).format('YYYY-MM-DD HH:mm:ss') }}
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="260">
         <template #default="{ row }">
           <el-button size="small" type="primary" @click="viewDetail(row.id)">查看</el-button>
-          <el-button size="small" type="success" @click="editItem(row.id)">编辑</el-button>
-          <el-button size="small" type="danger" @click="confirmDelete(row.id)">删除</el-button>
+          <el-button
+            size="small"
+            type="success"
+            @click="editItem(row.id)"
+            v-if="isAdmin"
+          >编辑</el-button>
+          <el-button
+            size="small"
+            type="danger"
+            @click="confirmDelete(row.id)"
+            v-if="isAdmin"
+          >删除</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column v-if="isAdmin" label="审核" width="180">
+        <template #default="{ row }">
+          <el-button v-if="row.status === 0" size="small" type="success" @click="handleAudit(row, 1)">通过</el-button>
+          <el-button v-if="row.status === 0" size="small" type="danger" @click="handleAudit(row, 2)">拒绝</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -61,12 +83,17 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { fetchNewsList, deleteNewsItem, exportNews } from '@/api/news'
+import { fetchNewsList, deleteNewsItem, exportNews, auditNewsItem } from '@/api/news'
+import { useUserStore } from '@/stores/user'
+import dayjs from 'dayjs'
 
 const router = useRouter()
+const userStore = useUserStore()
+const isAdmin = computed(() => userStore.userInfo && userStore.userInfo.roles && userStore.userInfo.roles.includes('ROLE_ADMIN'))
+const currentUserId = computed(() => userStore.userInfo && userStore.userInfo.user && userStore.userInfo.user.id)
 
 // 搜索表单
 const searchForm = ref({
@@ -87,6 +114,7 @@ const pagination = ref({
 // 拉取数据
 const fetchList = async () => {
   try {
+    await userStore.fetchUserInfo()
     const params = {
       ...searchForm.value,
       page: pagination.value.page,
@@ -97,21 +125,24 @@ const fetchList = async () => {
     pagination.value.total = res.data.total || 0
   } catch (error) {
     console.error('获取新闻列表失败:', error)
-    // 如果 API 失败，显示空列表而不是空白页面
     newsList.value = []
     pagination.value.total = 0
-    ElMessage.error('获取数据失败，请检查网络连接')
+    if (error.response && error.response.status === 403) {
+      ElMessage.error('无权限访问该内容')
+    } else {
+      ElMessage.error('获取数据失败，请检查网络连接')
+    }
   }
 }
 
 // 操作事件
-const handleAdd = () => router.push('/dashboard/dynamics/add')
+const handleAdd = () => router.push('/system/dynamics/add')
 const handleEdit = () => {
   if (selectedRows.value.length !== 1) {
     ElMessage.warning('请选中一条新闻进行编辑')
     return
   }
-  router.push(`/dashboard/dynamics/edit/${selectedRows.value[0].id}`)
+  router.push(`/system/dynamics/edit/${selectedRows.value[0].id}`)
 }
 const handleBatchDelete = () => {
   if (!selectedRows.value.length) {
@@ -163,8 +194,8 @@ const handleExport = async () => {
     ElMessage.error('导出失败，请重试')
   }
 }
-const viewDetail = (id) => router.push(`/dashboard/dynamics/detail/${id}`)
-const editItem = (id) => router.push(`/dashboard/dynamics/edit/${id}`)
+const viewDetail = (id) => router.push(`/system/dynamics/detail/${id}`)
+const editItem = (id) => router.push(`/system/dynamics/edit/${id}`)
 const confirmDelete = (id) => {
   ElMessageBox.confirm('是否确认删除该新闻？', '提示', {
     type: 'warning'
@@ -198,6 +229,33 @@ const resetSearch = () => {
   pagination.value.page = 1
   fetchList()
 }
+const goBack = () => {
+  router.push('/system/dynamics')
+}
+const goToMyNews = () => {
+  router.push('/system/my-dynamics')
+}
+const goToAudit = () => {
+  router.push('/system/dynamics/audit')
+}
+
+// 审核操作
+const handleAudit = async (row, status) => {
+  try {
+    const res = await auditNewsItem(row.id, status)
+    if (res.success) {
+      ElMessage.success('审核成功')
+      fetchList()
+    } else {
+      ElMessage.error(res.message || '审核失败')
+    }
+  } catch (e) {
+    ElMessage.error('审核失败')
+  }
+}
+
+// 只显示已通过的动态
+const filteredNewsList = computed(() => newsList.value.filter(item => item.status === 1))
 
 onMounted(fetchList)
 </script>

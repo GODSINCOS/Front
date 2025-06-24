@@ -5,7 +5,7 @@ import { getUserInfo } from '@/api/user'
 
 export const useUserStore = defineStore('user', () => {
   const token = ref(localStorage.getItem('token') || '')
-  const userInfo = ref<UserInfo | null>(null)
+  const userInfo = ref<any>(null)
 
   // 设置 token
   function setToken(value: string) {

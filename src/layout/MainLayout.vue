@@ -28,6 +28,10 @@
             <el-icon><UserFilled /></el-icon>
             <span>用户管理</span>
           </el-menu-item>
+          <el-menu-item index="/system/dynamics">
+            <el-icon><Promotion /></el-icon>
+            <span>行业动态管理</span>
+          </el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-aside>
@@ -47,7 +51,7 @@
         <div class="header-right">
           <el-dropdown @command="handleCommand">
             <div class="user-info">
-              <el-avatar :size="32" :src="avatarUrl">{{ userInfo.nickname?.[0] || userInfo.username?.[0] }}</el-avatar>
+              <el-avatar :size="32" :src="userInfo.avatar">{{ userInfo.nickname?.[0] || userInfo.username?.[0] }}</el-avatar>
               <span class="username">{{ userInfo.nickname || userInfo.username }}</span>
               <el-icon><ArrowDown /></el-icon>
             </div>
@@ -113,11 +117,7 @@ const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 
-const userInfo = ref({
-  username: '',
-  nickname: '',
-  avatar: ''
-})
+const userInfo = computed(() => userStore.userInfo && userStore.userInfo.user ? userStore.userInfo.user : { username: '', nickname: '', avatar: '' })
 
 // 头像URL
 const avatarUrl = ref('')
@@ -150,8 +150,23 @@ watch(
 
 // 添加访问过的页面
 const addVisitedView = (view: any) => {
+  // 判断是否是详情/编辑/新增页面
+  const isDetail = /^\/system\/dynamics\/detail\//.test(view.path)
+  const isEdit = /^\/system\/dynamics\/edit\//.test(view.path)
+  const isAdd = view.path === '/system/dynamics/add'
+
+  if (isDetail || isEdit || isAdd) {
+    // 移除已有的同类页面
+    visitedViews.value = visitedViews.value.filter(tab => {
+      if (isDetail) return !/^\/system\/dynamics\/detail\//.test(tab.path)
+      if (isEdit) return !/^\/system\/dynamics\/edit\//.test(tab.path)
+      if (isAdd) return tab.path !== '/system/dynamics/add'
+      return true
+    })
+  }
+
   if (visitedViews.value.some(v => v.path === view.path)) return
-  
+
   const title = view.meta.title || 'unknown'
   visitedViews.value.push({
     path: view.path,
@@ -208,10 +223,13 @@ const getUserInfo = async () => {
   try {
     const res = await userStore.fetchUserInfo()
     if (res) {
-      userInfo.value = {
-        username: res.username,
-        nickname: res.nickname || res.username,
-        avatar: res.avatar
+      userStore.userInfo = {
+        user: {
+          username: res.username,
+          nickname: res.nickname || res.username,
+          avatar: res.avatar
+        },
+        roles: res.roles
       }
       // 获取用户头像
       await loadUserAvatar()

@@ -2,7 +2,7 @@
   <el-card>
     <template #header>
       <div class="card-header">
-        <span>新增新闻</span>
+        <span>发布动态</span>
         <el-button @click="goBack" type="primary" plain>返回列表</el-button>
       </div>
     </template>
@@ -23,6 +23,7 @@
           :show-file-list="false"
           :on-success="handleUploadSuccess"
           :before-upload="beforeUpload"
+          :headers="{ Authorization: 'Bearer ' + getToken() }"
         >
           <img v-if="form.imageUrl" :src="form.imageUrl" class="uploaded-img" />
           <el-button v-else type="primary">上传图片</el-button>
@@ -33,7 +34,7 @@
       </el-form-item>
       
       <el-form-item>
-        <el-button type="primary" :loading="loading" @click="handleSubmit">提交</el-button>
+        <el-button type="primary" :loading="loading" @click="handleSubmit">发布</el-button>
         <el-button @click="goBack">取消</el-button>
       </el-form-item>
     </el-form>
@@ -67,6 +68,8 @@ const rules = {
 const formRef = ref(null)
 const loading = ref(false)
 
+const getToken = () => (typeof window !== 'undefined' && window.localStorage ? window.localStorage.getItem('token') : '')
+
 const handleUploadSuccess = (response) => {
   form.value.imageUrl = response.url
 }
@@ -87,7 +90,7 @@ const handleSubmit = () => {
         const res = await addNewsItem(form.value)
         if (res.success) {
           ElMessage.success('创建成功')
-          router.push('/dashboard/dynamics')
+          router.push('/system/dynamics')
         } else {
           ElMessage.error(`创建失败：${res.message}`)
         }
@@ -102,7 +105,7 @@ const handleSubmit = () => {
 }
 
 const goBack = () => {
-  router.push('/dashboard/dynamics')
+  router.push('/system/dynamics')
 }
 </script>
 

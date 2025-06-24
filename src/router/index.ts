@@ -1,26 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
-<<<<<<< Updated upstream
-import HomeView from '../views/HomeView.vue'
-
-const router = createRouter({
-  history: createWebHistory(import.meta.env.BASE_URL),
-  routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView,
-    },
-    {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
-    },
-  ],
-=======
 import type { RouteRecordRaw } from 'vue-router'
+
+import DynamicListView from '../views/new/DynamicListView.vue'
+import DynamicAddView from '../views/new/DynamicAddView.vue'
+import DynamicEditView from '../views/new/DynamicEditView.vue'
+import DynamicDetailView from '../views/new/DynamicDetailView.vue'
 
 const routes: RouteRecordRaw[] = [
   {
@@ -63,6 +47,44 @@ const routes: RouteRecordRaw[] = [
             name: 'UserManagement',
             component: () => import('../views/system/user/UserList.vue'),
             meta: { title: '用户管理', icon: 'User' }
+          },
+          {
+            path: 'dynamics',
+            name: 'Dynamics',
+            component: DynamicListView,
+            meta: { title: '行业动态管理', icon: 'Promotion' }
+          },
+          {
+            path: 'dynamics/add',
+            name: 'DynamicsAdd',
+            component: DynamicAddView,
+            meta: { title: '新增新闻' }
+          },
+          {
+            path: 'dynamics/edit/:id',
+            name: 'DynamicsEdit',
+            component: DynamicEditView,
+            props: true,
+            meta: { title: '编辑新闻' }
+          },
+          {
+            path: 'dynamics/detail/:id',
+            name: 'DynamicsDetail',
+            component: DynamicDetailView,
+            props: true,
+            meta: { title: '新闻详情' }
+          },
+          {
+            path: 'my-dynamics',
+            name: 'MyDynamics',
+            component: () => import('../views/new/UserNewsManage.vue'),
+            meta: { title: '我的动态管理', icon: 'Document' }
+          },
+          {
+            path: 'dynamics/audit',
+            name: 'DynamicsAudit',
+            component: () => import('../views/new/NewsAudit.vue'),
+            meta: { title: '审核动态', icon: 'Check' }
           }
         ]
       }
@@ -88,7 +110,6 @@ router.beforeEach((to, from, next) => {
   }
 
   next()
->>>>>>> Stashed changes
 })
 
 export default router

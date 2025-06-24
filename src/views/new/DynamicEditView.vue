@@ -23,6 +23,7 @@
             :show-file-list="false"
             :on-success="handleUploadSuccess"
             :before-upload="beforeUpload"
+            :headers="{ Authorization: 'Bearer ' + getToken() }"
           >
             <img v-if="form.imageUrl" :src="form.imageUrl" class="uploaded-img" />
             <el-button v-else type="primary">上传图片</el-button>
@@ -71,6 +72,8 @@ const rules = {
 const formRef = ref(null)
 const loading = ref(false)
 
+const getToken = () => (typeof window !== 'undefined' && window.localStorage ? window.localStorage.getItem('token') : '')
+
 const fetchDetail = async () => {
   try {
     const res = await getNewsDetail(id)
@@ -103,7 +106,7 @@ const handleSubmit = () => {
         const res = await editNewsItem(id, form.value)
         if (res.success) {
           ElMessage.success('修改成功')
-          router.push('/dashboard/dynamics')
+          router.push('/system/dynamics')
         } else {
           ElMessage.error(`修改失败：${res.message}`)
         }
@@ -118,7 +121,7 @@ const handleSubmit = () => {
 }
 
 const goBack = () => {
-  router.push('/dashboard/dynamics')
+  router.push('/system/dynamics')
 }
 
 onMounted(fetchDetail)
