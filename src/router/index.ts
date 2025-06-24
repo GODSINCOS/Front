@@ -1,72 +1,68 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import type { RouteRecordRaw } from 'vue-router'
+<<<<<<< Updated upstream
+import HomeView from '../views/HomeView.vue'
 
-import DynamicListView from '../views/new/DynamicListView.vue'
-import DynamicAddView from '../views/new/DynamicAddView.vue'
-import DynamicEditView from '../views/new/DynamicEditView.vue'
-import DynamicDetailView from '../views/new/DynamicDetailView.vue'
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes: [
+    {
+      path: '/',
+      name: 'home',
+      component: HomeView,
+    },
+    {
+      path: '/about',
+      name: 'about',
+      // route level code-splitting
+      // this generates a separate chunk (About.[hash].js) for this route
+      // which is lazy-loaded when the route is visited.
+      component: () => import('../views/AboutView.vue'),
+    },
+  ],
+=======
+import type { RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
-    component: () => import('../views/auth/login.vue'),
+    component: () => import('../views/auth/LoginPage.vue'),
     meta: { title: '登录' }
   },
   {
     path: '/register',
     name: 'Register',
-    component: () => import('../views/auth/register.vue'),
+    component: () => import('../views/auth/RegisterPage.vue'),
     meta: { title: '注册' }
   },
   {
     path: '/',
-    component: () => import('../layout/main.vue'),
+    component: () => import('../layout/MainLayout.vue'),
     redirect: '/dashboard',
     children: [
       {
         path: 'dashboard',
         name: 'Dashboard',
-        component: () => import('../views/dashboard/home.vue'),
+        component: () => import('../views/dashboard/DashboardHome.vue'),
         meta: { title: '首页', icon: 'House' }
       },
       {
         path: 'profile',
         name: 'Profile',
-        component: () => import('../views/profile/info.vue'),
+        component: () => import('../views/profile/ProfileInfo.vue'),
         meta: { title: '个人信息', icon: 'User' }
       },
       {
         path: 'system',
         name: 'System',
-        redirect: '/dashboard/dynamics',
+        redirect: '/system/user',
         meta: { title: '系统管理', icon: 'Setting' },
         children: [
           {
-            path: '/dashboard/dynamics',
-            name: 'Dynamics',
-            component: DynamicListView,
-            meta: { title: '行业动态管理', icon: 'Promotion' }
-          },
-          {
-            path: '/dashboard/dynamics/add',
-            name: 'DynamicsAdd',
-            component: DynamicAddView,
-            meta: { title: '新增新闻' }
-          },
-          {
-            path: '/dashboard/dynamics/edit/:id',
-            name: 'DynamicsEdit',
-            component: DynamicEditView,
-            props: true,
-            meta: { title: '编辑新闻' }
-          },
-          {
-            path: '/dashboard/dynamics/detail/:id',
-            name: 'DynamicsDetail',
-            component: DynamicDetailView,
-            props: true,
-            meta: { title: '新闻详情' }
+            path: 'user',
+            name: 'UserManagement',
+            component: () => import('../views/system/user/UserList.vue'),
+            meta: { title: '用户管理', icon: 'User' }
           }
         ]
       }
@@ -74,23 +70,25 @@ const routes: RouteRecordRaw[] = [
   }
 ]
 
-// // 路由守卫
-// router.beforeEach((to, from, next) => {
-//   // 设置页面标题
-//   document.title = `${to.meta.title} - 测盟汇管理系统`
-
-//   // 判断是否需要登录权限
-//   const token = localStorage.getItem('token')
-//   if (to.path !== '/login' && to.path !== '/register' && !token) {
-//     next('/login')
-//   } else {
-//     next()
-//   }
-// })
-
 const router = createRouter({
   history: createWebHistory(),
   routes
+})
+
+// 路由守卫
+router.beforeEach((to, from, next) => {
+  // 设置页面标题
+  document.title = `${to.meta.title} - 测盟汇管理系统`
+
+  // 判断是否需要登录权限
+  const token = localStorage.getItem('token')
+  if (to.path !== '/login' && to.path !== '/register' && !token) {
+    next('/login')
+    return
+  }
+
+  next()
+>>>>>>> Stashed changes
 })
 
 export default router

@@ -5,11 +5,11 @@ export interface UserInfo {
   nickname: string
   phone: string
   email: string
-  gender: number
+  gender: string
+  enterpriseId?: number
+  enterpriseName?: string
   status: number
-  department: string
-  role: string
-  avatar: string
+  avatar: string // 头像Base64数据或URL
   createTime: string
   updateTime: string
 }
@@ -40,13 +40,17 @@ export interface UpdateUserParams {
   nickname: string
   phone: string
   email: string
-  gender: number
+  gender: string
 }
 
 // 用户列表查询参数
 export interface UserListParams {
   page: number
   pageSize: number
+  username?: string
+  phone?: string
+  enterpriseName?: string
+  status?: number
   query?: string
 }
 
