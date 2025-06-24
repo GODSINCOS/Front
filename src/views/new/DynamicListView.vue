@@ -53,6 +53,7 @@
       :total="pagination.total"
       :page-size="pagination.pageSize"
       :current-page="pagination.page"
+      :page-sizes="[5, 10, 15, 20, 25]"
       @current-change="handlePageChange"
       @size-change="handleSizeChange"
     />
@@ -63,7 +64,7 @@
 import { ref, onMounted } from 'vue'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { fetchNewsList, deleteNewsItem } from '@/api/news'
+import { fetchNewsList, deleteNewsItem, exportNews } from '@/api/news'
 
 const router = useRouter()
 
@@ -140,8 +141,27 @@ const handleBatchDelete = () => {
     fetchList()
   }).catch(() => {})
 }
-const handleExport = () => {
-  ElMessage.info('导出功能待实现')
+const handleExport = async () => {
+  try {
+    ElMessage.info('正在导出数据，请稍候...')
+    const response = await exportNews()
+    
+    // 创建下载链接
+    const blob = new Blob([response], { type: 'text/csv;charset=utf-8;' })
+    const link = document.createElement('a')
+    const url = URL.createObjectURL(blob)
+    link.setAttribute('href', url)
+    link.setAttribute('download', `news_export_${new Date().toISOString().slice(0, 19).replace(/:/g, '-')}.csv`)
+    link.style.visibility = 'hidden'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    ElMessage.success('导出成功')
+  } catch (error) {
+    console.error('导出失败:', error)
+    ElMessage.error('导出失败，请重试')
+  }
 }
 const viewDetail = (id) => router.push(`/dashboard/dynamics/detail/${id}`)
 const editItem = (id) => router.push(`/dashboard/dynamics/edit/${id}`)

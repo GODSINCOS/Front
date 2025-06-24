@@ -43,3 +43,12 @@ export const getNewsDetail = (id) => {
     method: 'get'
   })
 }
+
+// 导出新闻数据
+export const exportNews = () => {
+  return request({
+    url: '/news/export',
+    method: 'get',
+    responseType: 'blob'
+  })
+}

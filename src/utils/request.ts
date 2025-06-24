@@ -40,6 +40,11 @@ service.interceptors.response.use(
   (response: AxiosResponse) => {
     console.log('Response:', response.data)
     
+    // 如果是blob类型（文件下载），直接返回
+    if (response.config.responseType === 'blob') {
+      return response.data
+    }
+    
     // 如果响应是原始数据格式（登录接口可能直接返回数据）
     if (response.status === 200 && !response.data.code) {
       return response.data
