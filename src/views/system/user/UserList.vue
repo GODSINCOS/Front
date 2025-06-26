@@ -217,7 +217,7 @@ const fetchUserList = async () => {
       username: searchForm.username || undefined,
       phone: searchForm.phone || undefined,
       enterpriseName: searchForm.enterpriseName || undefined,
-      status: searchForm.status !== '' ? searchForm.status : undefined
+      status: searchForm.status !== '' ? Number(searchForm.status) : undefined
     }
     
     const res = await getUserList(params)
