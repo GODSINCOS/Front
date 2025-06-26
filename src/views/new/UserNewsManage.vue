@@ -57,7 +57,7 @@ const pagination = ref({
 const fetchList = async () => {
   await userStore.fetchUserInfo()
   const params = {
-    userId: userStore.userInfo.id,
+    userId: userStore.userInfo.user.id,
     page: pagination.value.page,
     size: pagination.value.pageSize
   }
