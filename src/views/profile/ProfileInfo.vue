@@ -168,14 +168,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, onMounted } from 'vue'
+import { ref, reactive, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import type { FormInstance, UploadFile, UploadRawFile } from 'element-plus'
 import { getUserInfo, updateUserInfo, changePassword, uploadAvatar, getCurrentUserAvatar } from '@/api/user'
 import type { UserInfo, UpdateUserParams, ChangePasswordParams } from '@/types/user'
+import { useUserStore } from '@/stores/user'
 
 const router = useRouter()
+const userStore = useUserStore()
 const activeTab = ref('basic')
 const formRef = ref<FormInstance>()
 const passwordFormRef = ref<FormInstance>()
@@ -195,7 +197,7 @@ const formData = reactive<Partial<UserInfo>>({
   phone: '',
   email: '',
   gender: '男',
-  enterpriseId: null,
+  enterpriseId: undefined,
   enterpriseName: '',
   createTime: ''
 })
@@ -253,17 +255,20 @@ const fetchUserInfo = async () => {
       // 调试：打印返回的用户信息
       console.log('获取到的用户信息:', res.data)
       
+      // 提取用户信息 - API返回的是 { user: {...}, roles: [...] } 格式
+      const userData = res.data.user || res.data
+      
       // 格式化时间字段
-      if (res.data.createTime) {
-        res.data.createTime = new Date(res.data.createTime).toLocaleString('zh-CN')
+      if (userData.createTime) {
+        userData.createTime = new Date(userData.createTime).toLocaleString('zh-CN')
       }
-      if (res.data.updateTime) {
-        res.data.updateTime = new Date(res.data.updateTime).toLocaleString('zh-CN')
+      if (userData.updateTime) {
+        userData.updateTime = new Date(userData.updateTime).toLocaleString('zh-CN')
       }
       
       // 性别字段现在直接使用字符串，无需转换
       
-      Object.assign(formData, res.data)
+      Object.assign(formData, userData)
       
       // 调试：打印合并后的formData
       console.log('合并后的formData:', formData)
@@ -282,16 +287,41 @@ const fetchUserInfo = async () => {
 }
 
 // 加载用户头像
-const loadUserAvatar = async () => {
+const loadUserAvatar = async (retryCount = 0) => {
   try {
+    // 清除之前的URL对象以避免内存泄漏
+    if (userAvatar.value && userAvatar.value.startsWith('blob:')) {
+      URL.revokeObjectURL(userAvatar.value)
+    }
+    
+    console.log('开始获取用户头像...')
     const blob = await getCurrentUserAvatar()
-    if (blob && blob.size > 0) {
+    
+    if (blob === null) {
+      // 用户没有头像（404响应）
+      console.log('用户没有头像，使用默认头像')
+      userAvatar.value = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+    } else if (blob && blob.size > 0) {
+      // 成功获取头像
       const url = URL.createObjectURL(blob)
       userAvatar.value = url
+      console.log('头像加载成功，大小:', blob.size, '字节')
+    } else {
+      // blob存在但大小为0
+      console.warn('头像数据为空，使用默认头像')
+      userAvatar.value = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
     }
   } catch (error) {
-    // 如果获取头像失败，使用默认头像
-    userAvatar.value = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+    console.error('获取头像失败:', error)
+    // 重试一次
+    if (retryCount < 1) {
+      console.log('正在重试获取头像...')
+      setTimeout(() => loadUserAvatar(retryCount + 1), 1000)
+    } else {
+      // 重试失败，使用默认头像
+      console.log('重试失败，使用默认头像')
+      userAvatar.value = 'https://cube.elemecdn.com/3/7c/3ea6beec64369c2642b92c6726f1epng.png'
+    }
   }
 }
 
@@ -332,16 +362,35 @@ const uploadNewAvatar = async () => {
   try {
     const formData = new FormData()
     formData.append('avatar', avatarFile.value)
+    console.log('开始上传头像...')
     await uploadAvatar(formData)
+    console.log('头像上传成功')
     ElMessage.success('头像更新成功')
     avatarFile.value = null
+    
+    // 等待一小段时间确保后端处理完成
+    await new Promise(resolve => setTimeout(resolve, 500))
+    
     // 重新加载头像
     await loadUserAvatar()
+    console.log('头像重新加载完成')
+    
+    // 更新用户状态管理中的用户信息
+    try {
+      await userStore.fetchUserInfo()
+      console.log('用户信息更新完成')
+    } catch (error) {
+      console.warn('更新用户状态管理失败:', error)
+    }
+    
     // 触发全局头像更新事件
     window.dispatchEvent(new CustomEvent('avatarUpdated'))
+    console.log('头像更新事件已触发')
   } catch (error: any) {
     console.error('头像上传失败:', error)
     ElMessage.error(error.message || '头像上传失败')
+    // 恢复原来的头像显示
+    await loadUserAvatar()
   } finally {
     avatarUploading.value = false
   }
@@ -430,6 +479,13 @@ const getUserCategory = () => {
 
 onMounted(() => {
   fetchUserInfo()
+})
+
+// 组件销毁时清理 blob URL
+onUnmounted(() => {
+  if (userAvatar.value && userAvatar.value.startsWith('blob:')) {
+    URL.revokeObjectURL(userAvatar.value)
+  }
 })
 </script>
 

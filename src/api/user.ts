@@ -156,6 +156,13 @@ export function getCurrentUserAvatar() {
     url: '/users/current/avatar',
     method: 'get',
     responseType: 'blob'
+  }).catch(error => {
+    // 如果是404错误，表示用户没有头像，返回null
+    if (error.response && error.response.status === 404) {
+      return null
+    }
+    // 其他错误继续抛出
+    throw error
   })
 }
 
