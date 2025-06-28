@@ -62,10 +62,13 @@
           <el-button type="primary" class="register-button" :loading="loading" @click="handleSubmit">
             注册
           </el-button>
+        </el-form-item>
+        
+        <div class="login-link-container">
           <el-button link type="primary" @click="goToLogin">
             已有账号？立即登录
           </el-button>
-        </el-form-item>
+        </div>
       </el-form>
     </div>
   </div>
@@ -94,7 +97,7 @@ const formData = reactive<Partial<UserInfo> & { password: string }>({
   phone: '',
   email: '',
   gender: '男',
-  enterpriseId: null,
+  enterpriseId: undefined,
   status: 1,
   password: ''
 })
@@ -243,15 +246,15 @@ const goToLogin = () => {
 }
 
 .register-button {
-  width: 100%;
-  margin-bottom: 14px;
+  width: calc(100% + 40px); /* 比输入框宽40px */
+  margin-left: -40px; /* 向左延伸20px */
 }
 
-.register-form {
-  .el-form-item:last-child {
-    margin-bottom: 0;
-    text-align: center;
-  }
+.login-link-container {
+  margin-top: 16px;
+  margin-left: -40px; /* 跟随按钮左移量 */
+  text-align: left;
+  padding-left: calc(50% + 20px - 30px); /* 精确定位让"？"对齐"注册"中间 */
 }
 
 .avatar-upload {

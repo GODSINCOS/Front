@@ -1,3 +1,4 @@
+@ -0,0 +1,576 @@
 <template>
   <div class="slider-captcha-modal" v-show="visible" @click.self="close">
     <div class="captcha-container">

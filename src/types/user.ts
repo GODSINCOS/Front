@@ -12,6 +12,7 @@ export interface UserInfo {
   avatar: string // 头像Base64数据或URL
   createTime: string
   updateTime: string
+  roles?: string[] // 新增：角色列表
 }
 
 // 登录请求参数
