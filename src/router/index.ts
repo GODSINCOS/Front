@@ -69,6 +69,40 @@ const routes: RouteRecordRaw[] = [
             meta: { title: '新闻详情' }
           }
         ]
+      },
+      {
+        path: 'meeting',
+        name: 'Meeting',
+        redirect: '/meeting/list',
+        meta: { title: '会议管理', icon: 'Calendar' },
+        children: [
+          {
+            path: '/meeting/list',
+            name: 'MeetingList',
+            component: () => import('../views/meeting/MeetingListView.vue'),
+            meta: { title: '会议列表' }
+          },
+          {
+            path: '/meeting/add',
+            name: 'MeetingAdd',
+            component: () => import('../views/meeting/MeetingAddView.vue'),
+            meta: { title: '新增会议' }
+          },
+          {
+            path: '/meeting/edit/:id',
+            name: 'MeetingEdit',
+            component: () => import('../views/meeting/MeetingEditView.vue'),
+            props: true,
+            meta: { title: '编辑会议' }
+          },
+          {
+            path: '/meeting/detail/:id',
+            name: 'MeetingDetail',
+            component: () => import('../views/meeting/MeetingDetailView.vue'),
+            props: true,
+            meta: { title: '会议详情' }
+          }
+        ]
       }
     ]
   }

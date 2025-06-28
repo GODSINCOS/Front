@@ -36,7 +36,7 @@
             <el-icon><Reading /></el-icon>
             <span>课程管理</span>
           </el-menu-item>
-          <el-menu-item index="/system/meeting">
+          <el-menu-item index="/meeting/list">
             <el-icon><Calendar /></el-icon>
             <span>会议管理</span>
           </el-menu-item>
