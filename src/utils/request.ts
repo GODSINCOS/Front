@@ -31,28 +31,28 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response: AxiosResponse) => {
     const { data } = response
-    
+
     // 如果是 blob 类型，直接返回 blob 数据
     if (response.config.responseType === 'blob') {
       return response.data
     }
-    
+
     // 如果请求成功，直接返回数据
     if (data.code === 0 || data.code === 200 || data.code === undefined) {
       return data
     }
-    
+
     // 处理业务错误
     ElMessage.error(data.message || '请求失败')
     return Promise.reject(new Error(data.message || '请求失败'))
   },
   (error) => {
     console.error('响应错误:', error)
-    
+
     // 处理 HTTP 错误状态码
     if (error.response) {
       const { status, data } = error.response
-      
+
       switch (status) {
         case 401:
           ElMessage.error('未授权，请重新登录')
@@ -82,7 +82,7 @@ service.interceptors.response.use(
     } else {
       ElMessage.error('网络连接错误')
     }
-    
+
     return Promise.reject(error)
   }
 )
@@ -90,4 +90,10 @@ service.interceptors.response.use(
 // 导出封装的请求方法
 export default function request<T = any>(config: AxiosRequestConfig): Promise<T> {
   return service.request(config)
+}
+
+const API_BASE = 'http://localhost:8080'; // 后端端口
+export const getFullImageUrl = (imageUrl: string): string => {
+  if (!imageUrl) return ''
+  return imageUrl.startsWith('http') ? imageUrl : API_BASE + imageUrl
 } 

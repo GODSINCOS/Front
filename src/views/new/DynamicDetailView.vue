@@ -13,9 +13,10 @@
       <h4>新闻封面图：</h4>
       <el-image
         v-if="news.imageUrl"
-        :src="news.imageUrl"
+        :src="getFullImageUrl(news.imageUrl)"
         style="max-width: 300px"
-        :preview-src-list="[news.imageUrl]"
+        :preview-src-list="[getFullImageUrl(news.imageUrl)]"
+        fit="cover"
       />
       <p v-else class="text-gray-500">暂无图片</p>
     </div>
@@ -40,6 +41,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { getNewsDetail, deleteNewsItem } from '@/api/news'
 import { ElMessageBox, ElMessage } from 'element-plus'
 import { useUserStore } from '@/stores/user'
+import { getFullImageUrl } from '@/utils/request'
 
 const route = useRoute()
 const router = useRouter()

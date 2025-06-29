@@ -6,6 +6,7 @@ import DynamicListView from '../views/news/DynamicListView.vue'
 import DynamicAddView from '../views/news/DynamicAddView.vue'
 import DynamicEditView from '../views/news/DynamicEditView.vue'
 import DynamicDetailView from '../views/news/DynamicDetailView.vue'
+import CourseManageView from '../views/course/CourseManage.vue'
 import type { RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
@@ -24,14 +25,14 @@ const routes: RouteRecordRaw[] = [
   {
     path: '/',
     component: () => import('../layout/MainLayout.vue'),
-      redirect: (to) => {
-    // 检查是否有token，没有token则重定向到登录页
-    const token = sessionStorage.getItem('token')
-    if (!token || token === '' || token === 'null' || token === 'undefined') {
-      return '/login'
-    }
-    return '/dashboard'
-  },
+    redirect: (to) => {
+      // 检查是否有token，没有token则重定向到登录页
+      const token = sessionStorage.getItem('token')
+      if (!token || token === '' || token === 'null' || token === 'undefined') {
+        return '/login'
+      }
+      return '/dashboard'
+    },
     children: [
       {
         path: 'dashboard',
@@ -62,6 +63,24 @@ const routes: RouteRecordRaw[] = [
             name: 'Dynamics',
             component: DynamicListView,
             meta: { title: '行业动态管理', icon: 'Promotion' }
+          },
+          {
+            path: 'course',
+            name: 'CourseManage',
+            component: CourseManageView,
+            meta: { title: '课程管理', icon: 'Notebook' }
+          },
+          {
+            path: 'course/detail/:id',
+            name: 'CourseDetail',
+            meta: { title: '课程详情' },
+            component: () => import('@/views/course/CourseDetailView.vue')
+          },
+          {
+            path: 'course/pending',
+            name: 'PendingCourse',
+            component: () => import('@/views/course/PendingCourse.vue'),
+            meta: { title: '待审核课程' }
           },
           {
             path: 'dynamics/add',
@@ -109,12 +128,12 @@ const router = createRouter({
 // 路由守卫
 router.beforeEach(async (to, from, next) => {
   console.log('路由守卫检查:', to.path)
-  
+
   // 设置页面标题
   document.title = `${to.meta.title} - 测盟汇管理系统`
 
   const whiteList = ['/login', '/register']
-  
+
   // 如果是白名单路径，直接放行
   if (whiteList.includes(to.path)) {
     console.log('白名单路径，直接放行')
@@ -125,7 +144,7 @@ router.beforeEach(async (to, from, next) => {
   // 检查token
   const token = sessionStorage.getItem('token')
   console.log('当前token:', token)
-  
+
   if (!token || token === '' || token === 'null' || token === 'undefined') {
     console.log('token无效，清除状态并跳转到登录页')
     // 清除所有用户相关状态
@@ -133,11 +152,11 @@ router.beforeEach(async (to, from, next) => {
     sessionStorage.removeItem('userInfo')
     localStorage.removeItem('token') // 也清除localStorage中可能残留的
     localStorage.removeItem('userInfo')
-    
+
     const userStore = useUserStore()
     userStore.token = ''
     userStore.userInfo = null
-    
+
     ElMessage.warning('请先登录')
     next('/login')
     return

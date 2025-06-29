@@ -71,7 +71,8 @@ const loading = ref(false)
 const getToken = () => (typeof window !== 'undefined' && window.localStorage ? window.localStorage.getItem('token') : '')
 
 const handleUploadSuccess = (response) => {
-  form.value.imageUrl = response.url
+  const prefix = response.url.startsWith('http') ? '' : window.location.origin
+  form.value.imageUrl = prefix + response.url
 }
 
 const beforeUpload = (file) => {

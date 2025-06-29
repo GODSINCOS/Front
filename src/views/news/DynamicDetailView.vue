@@ -16,6 +16,7 @@
         :src="getNewsImageUrl(news.id)"
         style="max-width: 300px"
         :preview-src-list="[getNewsImageUrl(news.id)]"
+        fit="cover"
       />
       <p v-else class="text-gray-500">暂无图片</p>
     </div>

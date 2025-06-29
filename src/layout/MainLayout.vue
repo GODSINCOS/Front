@@ -32,6 +32,10 @@
             <el-icon><Promotion /></el-icon>
             <span>行业动态管理</span>
           </el-menu-item>
+          <el-menu-item index="/system/course">
+            <el-icon><Reading /></el-icon>
+            <span>课程管理</span>
+          </el-menu-item>
         </el-sub-menu>
       </el-menu>
     </el-aside>
