@@ -255,8 +255,8 @@ const fetchUserInfo = async () => {
       // 调试：打印返回的用户信息
       console.log('获取到的用户信息:', res.data)
       
-      // 提取用户信息 - API返回的是 { user: {...}, roles: [...] } 格式
-      const userData = res.data.user || res.data
+      // 提取用户信息 - API返回格式为 { user: {...}, roles: [...] }
+      const userData = (res.data as any).user || res.data
       
       // 格式化时间字段
       if (userData.createTime) {
@@ -439,15 +439,53 @@ const handleChangePassword = async () => {
     if (valid) {
       passwordLoading.value = true
       try {
-        await changePassword({
+        console.log('开始修改密码请求...')
+        const result = await changePassword({
           oldPassword: passwordForm.oldPassword,
           newPassword: passwordForm.newPassword
         })
+        console.log('修改密码响应:', result)
         ElMessage.success('密码修改成功')
         resetPasswordForm()
       } catch (error: any) {
         console.error('密码修改失败:', error)
-        ElMessage.error(error.message || '密码修改失败')
+        
+        // 详细的错误处理
+        let errorMessage = '密码修改失败'
+        
+        if (error.response) {
+          const { status, data } = error.response
+          console.error('HTTP错误状态:', status)
+          console.error('错误响应数据:', data)
+          
+          switch (status) {
+            case 400:
+              errorMessage = data?.message || '请求参数错误'
+              break
+            case 401:
+              errorMessage = '用户未登录或token已过期，请重新登录'
+              break
+            case 403:
+              errorMessage = '权限不足，无法修改密码'
+              break
+            case 404:
+              errorMessage = '用户不存在'
+              break
+            case 500:
+              errorMessage = data?.message || '服务器内部错误'
+              break
+            default:
+              errorMessage = data?.message || `请求失败 (${status})`
+          }
+        } else if (error.code === 'ECONNABORTED') {
+          errorMessage = '请求超时，请检查网络连接'
+        } else if (!error.message) {
+          errorMessage = '网络连接错误，请检查后端服务是否启动'
+        } else {
+          errorMessage = error.message
+        }
+        
+        ElMessage.error(errorMessage)
       } finally {
         passwordLoading.value = false
       }

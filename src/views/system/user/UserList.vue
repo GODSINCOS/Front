@@ -224,6 +224,9 @@ const fetchUserList = async () => {
     userList.value = res.data.list || []
     pagination.total = res.data.total || 0
     
+    // 调试：检查用户数据格式
+    console.log('用户列表数据:', userList.value.slice(0, 2)) // 只显示前两个用户数据
+    
     // 格式化时间
     userList.value.forEach(user => {
       if (user.createTime) {
@@ -279,6 +282,8 @@ const handleAdd = () => {
 
 // 修改用户
 const handleEdit = (row: UserInfo) => {
+  console.log('编辑用户原始数据:', row)
+  console.log('用户ID:', row.id, '类型:', typeof row.id)
   dialogType.value = 'edit'
   formData.value = { ...row }
   dialogVisible.value = true
@@ -297,7 +302,7 @@ const handleDelete = async (row: UserInfo) => {
       }
     )
     
-    await deleteUser(row.id)
+    await deleteUser(Number(row.id))
     ElMessage.success('删除成功')
     fetchUserList()
   } catch (error) {
@@ -321,7 +326,7 @@ const handleToggleStatus = async (row: UserInfo) => {
       }
     )
     
-    await changeUserStatus(row.id, row.status === 1 ? 0 : 1)
+    await changeUserStatus(Number(row.id), row.status === 1 ? 0 : 1)
     ElMessage.success(`${action}成功`)
     fetchUserList()
   } catch (error) {
@@ -349,13 +354,16 @@ const handleBatchEnable = async () => {
       }
     )
     
-    const userIds = selectedUsers.value.map(user => user.id)
+    const userIds = selectedUsers.value.map(user => Number(user.id))
+    console.log('批量启用用户IDs:', userIds)
     await batchChangeUserStatus(userIds, 1)
     ElMessage.success('批量启用成功')
     fetchUserList()
-  } catch (error) {
+  } catch (error: any) {
     if (error !== 'cancel') {
-      ElMessage.error('批量启用失败')
+      console.error('批量启用失败:', error)
+      const message = error?.response?.data?.message || error?.message || '批量启用失败'
+      ElMessage.error(message)
     }
   }
 }
@@ -373,13 +381,16 @@ const handleBatchDisable = async () => {
       }
     )
     
-    const userIds = selectedUsers.value.map(user => user.id)
+    const userIds = selectedUsers.value.map(user => Number(user.id))
+    console.log('批量禁用用户IDs:', userIds)
     await batchChangeUserStatus(userIds, 0)
     ElMessage.success('批量禁用成功')
     fetchUserList()
-  } catch (error) {
+  } catch (error: any) {
     if (error !== 'cancel') {
-      ElMessage.error('批量禁用失败')
+      console.error('批量禁用失败:', error)
+      const message = error?.response?.data?.message || error?.message || '批量禁用失败'
+      ElMessage.error(message)
     }
   }
 }
@@ -397,13 +408,16 @@ const handleBatchDelete = async () => {
       }
     )
     
-    const userIds = selectedUsers.value.map(user => user.id)
+    const userIds = selectedUsers.value.map(user => Number(user.id))
+    console.log('批量删除用户IDs:', userIds)
     await batchDeleteUsers(userIds)
     ElMessage.success('批量删除成功')
     fetchUserList()
-  } catch (error) {
+  } catch (error: any) {
     if (error !== 'cancel') {
-      ElMessage.error('批量删除失败')
+      console.error('批量删除失败:', error)
+      const message = error?.response?.data?.message || error?.message || '批量删除失败'
+      ElMessage.error(message)
     }
   }
 }

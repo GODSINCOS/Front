@@ -11,10 +11,26 @@ export interface Enterprise {
   updateTime: string
 }
 
+export interface SimpleEnterpriseRegisterParams {
+  name: string
+  contact: string
+  phone: string
+  email: string
+}
+
 export interface ApiResponse<T = any> {
   code: number
   message: string
   data: T
+}
+
+// 企业注册
+export function registerEnterprise(data: SimpleEnterpriseRegisterParams) {
+  return request<ApiResponse>({
+    url: '/auth/enterprise/register',
+    method: 'post',
+    data
+  })
 }
 
 // 获取公共企业列表（用于注册页面）

@@ -7,28 +7,60 @@
         :model="formData"
         :rules="rules"
         class="register-form"
-        label-width="80px"
       >
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="formData.username" placeholder="请输入用户名" />
+        <div class="form-row">
+          <el-form-item prop="username">
+            <el-input 
+              v-model="formData.username" 
+              placeholder="请输入用户名"
+              :prefix-icon="User"
+            />
+          </el-form-item>
+          <el-form-item prop="nickname">
+            <el-input 
+              v-model="formData.nickname" 
+              placeholder="请输入昵称"
+              :prefix-icon="User"
+            />
+          </el-form-item>
+        </div>
+
+        <div class="form-row">
+          <el-form-item prop="phone">
+            <el-input 
+              v-model="formData.phone" 
+              placeholder="请输入手机号"
+              :prefix-icon="Phone"
+            />
+          </el-form-item>
+          <el-form-item prop="email">
+            <el-input 
+              v-model="formData.email" 
+              placeholder="请输入邮箱"
+              :prefix-icon="Message"
+            />
+          </el-form-item>
+        </div>
+
+        <el-form-item prop="gender">
+          <div class="gender-container">
+            <span class="gender-label">性别:</span>
+            <el-radio-group v-model="formData.gender" class="gender-radio-group">
+              <el-radio value="男">男</el-radio>
+              <el-radio value="女">女</el-radio>
+            </el-radio-group>
+          </div>
         </el-form-item>
-        <el-form-item label="昵称" prop="nickname">
-          <el-input v-model="formData.nickname" placeholder="请输入昵称" />
-        </el-form-item>
-        <el-form-item label="手机号" prop="phone">
-          <el-input v-model="formData.phone" placeholder="请输入手机号" />
-        </el-form-item>
-        <el-form-item label="邮箱" prop="email">
-          <el-input v-model="formData.email" placeholder="请输入邮箱" />
-        </el-form-item>
-        <el-form-item label="性别" prop="gender">
-          <el-radio-group v-model="formData.gender">
-            <el-radio value="男">男</el-radio>
-            <el-radio value="女">女</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="所属企业" prop="enterpriseId">
-          <el-select v-model="formData.enterpriseId" placeholder="请选择所属企业" style="width: 100%">
+
+        <el-form-item prop="enterpriseId">
+          <el-select 
+            v-model="formData.enterpriseId" 
+            placeholder="请选择所属企业" 
+            style="width: 100%"
+            :prefix-icon="OfficeBuilding"
+            :suffix-icon="ArrowDown"
+            popper-class="custom-select-dropdown"
+          >
             <el-option 
               v-for="enterprise in enterpriseList" 
               :key="enterprise.id" 
@@ -37,9 +69,13 @@
             />
           </el-select>
         </el-form-item>
-        <el-form-item label="头像" prop="avatar">
+
+        <el-form-item prop="avatar">
           <div class="avatar-upload">
-            <el-avatar :size="80" :src="avatarPreview" />
+            <div class="avatar-preview">
+              <el-avatar :size="60" :src="avatarPreview" />
+              <span class="avatar-label">头像</span>
+            </div>
             <el-upload
               ref="uploadRef"
               :show-file-list="false"
@@ -48,26 +84,36 @@
               :auto-upload="false"
               accept="image/*"
             >
-              <el-button type="primary" size="small" style="margin-left: 10px;">
+              <el-button type="primary" size="small" class="upload-button">
                 选择头像
               </el-button>
             </el-upload>
           </div>
         </el-form-item>
-        <el-form-item label="密码" prop="password">
-          <el-input v-model="formData.password" type="password" placeholder="请输入密码" show-password />
+
+        <el-form-item prop="password">
+          <el-input 
+            v-model="formData.password" 
+            type="password" 
+            placeholder="请输入密码"
+            :prefix-icon="Lock"
+            show-password 
+          />
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" class="register-button" :loading="loading" @click="handleSubmit">
+          <el-button
+            type="primary"
+            class="register-button"
+            :loading="loading"
+            @click="handleSubmit"
+          >
             注册
           </el-button>
         </el-form-item>
         
-        <div class="login-link-container">
-          <el-button link type="primary" @click="goToLogin">
-            已有账号？立即登录
-          </el-button>
+        <div class="login-link">
+          <p>已有账号? <el-button link type="primary" @click="goToLogin">立即登录</el-button></p>
         </div>
       </el-form>
     </div>
@@ -77,6 +123,7 @@
 <script setup lang="ts">
 import { ref, reactive, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
+import { User, Lock, Phone, Message, OfficeBuilding, ArrowDown } from '@element-plus/icons-vue'
 import type { FormInstance, UploadFile, UploadRawFile } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { userRegister } from '@/api/user'
@@ -222,44 +269,525 @@ const goToLogin = () => {
 </script>
 
 <style scoped>
+/* 注意：企业下拉框样式需要使用全局样式 */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
 .register-container {
+  font-family: "Poppins", sans-serif;
+  height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #f5f5f5;
+  background: url('@/assets/6.png') no-repeat center center;
+  background-size: cover;
+  background-position: center;
+  margin: 0;
+  padding: 20px;
+  box-sizing: border-box;
 }
 
 .register-box {
-  width: 520px;
-  padding: 30px;
-  background-color: #fff;
-  border-radius: 4px;
-  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, 0.1);
+  position: relative;
+  width: 100%;
+  max-width: 500px;
+  min-height: 600px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 40px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+.register-box:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  transform: translateY(-2px);
 }
 
 .title {
-  margin-bottom: 30px;
+  font-size: 2em;
+  color: #fff;
   text-align: center;
-  font-size: 24px;
-  color: #303133;
+  margin: 0 0 30px 0;
+  font-weight: 600;
 }
 
-.register-button {
-  width: calc(100% + 40px); /* 比输入框宽40px */
-  margin-left: -40px; /* 向左延伸20px */
+.register-form {
+  width: 100%;
 }
 
-.login-link-container {
-  margin-top: 16px;
-  margin-left: -40px; /* 跟随按钮左移量 */
-  text-align: left;
-  padding-left: calc(50% + 20px - 30px); /* 精确定位让"？"对齐"注册"中间 */
+.form-row {
+  display: flex;
+  gap: 15px;
 }
 
+.form-row .el-form-item {
+  flex: 1;
+  margin-bottom: 20px;
+}
+
+.register-form :deep(.el-form-item) {
+  margin-bottom: 20px;
+}
+
+.register-form :deep(.el-input) {
+  height: 45px;
+  background: transparent;
+}
+
+.register-form :deep(.el-input__wrapper) {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  padding: 0 40px 0 15px !important;
+  height: 45px !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease !important;
+}
+
+.register-form :deep(.el-input__wrapper:hover) {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: none !important;
+}
+
+.register-form :deep(.el-input__wrapper.is-focus) {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) !important;
+}
+
+.register-form :deep(.el-input__inner) {
+  color: #fff !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 0.95em !important;
+  height: 45px !important;
+  line-height: 45px !important;
+}
+
+.register-form :deep(.el-input__inner::placeholder) {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 0.95em !important;
+}
+
+.register-form :deep(.el-input__prefix) {
+  color: #fff !important;
+  font-size: 1.1em !important;
+  line-height: 45px !important;
+}
+
+.register-form :deep(.el-input__suffix) {
+  color: #fff !important;
+  line-height: 45px !important;
+}
+
+.register-form :deep(.el-input__password) {
+  color: #fff !important;
+}
+
+/* 选择框样式 - 与输入框保持一致 */
+.register-form :deep(.el-select) {
+  width: 100%;
+}
+
+.register-form :deep(.el-select .el-input) {
+  height: 45px;
+  background: transparent;
+}
+
+.register-form :deep(.el-select .el-input__wrapper) {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  padding: 0 40px 0 15px !important;
+  height: 45px !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease !important;
+}
+
+.register-form :deep(.el-select .el-input__wrapper:hover) {
+  background-color: rgba(255, 255, 255, 0.15) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  box-shadow: none !important;
+}
+
+.register-form :deep(.el-select .el-input__wrapper.is-focus) {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.2) !important;
+}
+
+.register-form :deep(.el-select .el-input__inner) {
+  color: #fff !important;
+  background: transparent !important;
+  border: none !important;
+  font-size: 0.95em !important;
+  height: 45px !important;
+  line-height: 45px !important;
+}
+
+.register-form :deep(.el-select .el-input__inner::placeholder) {
+  color: rgba(255, 255, 255, 0.7) !important;
+  font-size: 0.95em !important;
+}
+
+.register-form :deep(.el-select .el-input__prefix) {
+  color: #fff !important;
+  font-size: 1.1em !important;
+  line-height: 45px !important;
+}
+
+.register-form :deep(.el-select .el-input__suffix) {
+  color: #fff !important;
+  line-height: 45px !important;
+}
+
+.register-form :deep(.el-select__icon) {
+  color: #fff !important;
+  font-size: 14px !important;
+}
+
+/* 下拉框样式已移至全局样式块 */
+
+/* 性别选择器样式 - 与其他输入框保持一致 */
+.gender-container {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  padding: 0 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  height: 45px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.gender-container:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.gender-label {
+  color: #fff;
+  font-size: 0.95em;
+  min-width: 40px;
+}
+
+.gender-radio-group {
+  display: flex;
+  justify-content: flex-start;
+  flex: 1;
+  gap: 20px;
+  padding-left: 130px;
+}
+
+.gender-radio-group :deep(.el-radio) {
+  color: #fff;
+  margin-right: 0;
+}
+
+.gender-radio-group :deep(.el-radio__label) {
+  color: #fff !important;
+  font-size: 0.95em !important;
+}
+
+.gender-radio-group :deep(.el-radio__inner) {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  transition: all 0.3s ease !important;
+}
+
+.gender-radio-group :deep(.el-radio__inner:hover) {
+  background-color: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+}
+
+.gender-radio-group :deep(.el-radio.is-checked .el-radio__inner) {
+  background-color: rgba(255, 255, 255, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.5) !important;
+}
+
+.gender-radio-group :deep(.el-radio.is-checked .el-radio__inner::after) {
+  background-color: #fff !important;
+}
+
+/* 头像上传样式 */
 .avatar-upload {
   display: flex;
   align-items: center;
+  gap: 15px;
+  padding: 10px 15px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  transition: all 0.3s ease;
+  width: 100%;
+}
+
+.avatar-upload:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.avatar-preview {
+  display: flex;
+  align-items: center;
   gap: 10px;
+}
+
+.avatar-label {
+  color: #fff;
+  font-size: 0.95em;
+}
+
+.upload-button {
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 15px !important;
+  color: #fff !important;
+  font-size: 0.9em !important;
+  padding: 5px 15px !important;
+  height: auto !important;
+  transition: all 0.3s ease;
+}
+
+.upload-button:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  transform: translateY(-1px);
+}
+
+.register-button {
+  width: 100% !important;
+  height: 45px !important;
+  background: rgba(255, 255, 255, 0.2) !important;
+  border: 1px solid rgba(255, 255, 255, 0.3) !important;
+  border-radius: 25px !important;
+  cursor: pointer;
+  font-size: 1.1em !important;
+  font-weight: 600 !important;
+  color: #fff !important;
+  margin-top: 10px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.register-button:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2) !important;
+  transform: translateY(-1px);
+}
+
+.register-button:focus {
+  background: rgba(255, 255, 255, 0.3) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  box-shadow: 0 5px 15px rgba(255, 255, 255, 0.2) !important;
+}
+
+.login-link {
+  font-size: 0.9em;
+  color: #fff;
+  text-align: center;
+  margin: 20px 0 0;
+  width: 100%;
+}
+
+.login-link p {
+  color: #fff;
+  margin: 0;
+  font-size: 0.9em;
+}
+
+.login-link :deep(.el-button) {
+  color: #fff !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+  font-size: inherit !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  vertical-align: baseline !important;
+  transition: all 0.3s ease;
+}
+
+.login-link :deep(.el-button:hover) {
+  text-decoration: underline !important;
+  transform: scale(1.05);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .register-container {
+    padding: 10px;
+  }
+  
+  .register-box {
+    padding: 30px;
+    max-width: 400px;
+  }
+  
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .title {
+    font-size: 1.8em;
+  }
+}
+</style>
+
+<!-- 全局样式 - 用于Element Plus下拉框 -->
+<style>
+/* 企业选择下拉框全局样式 - 挂载在body下需要全局样式 */
+.custom-select-dropdown {
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.4) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  max-height: 200px !important;
+  overflow: hidden !important;
+}
+
+/* Element Plus 内部滚动容器 */
+.custom-select-dropdown .el-select-dropdown__wrap {
+  max-height: 200px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  scrollbar-width: thin !important;
+  scrollbar-color: rgba(255, 255, 255, 0.6) rgba(0, 0, 0, 0.1) !important;
+}
+
+.custom-select-dropdown .el-select-dropdown__list {
+  max-height: none !important;
+  overflow: visible !important;
+  padding: 6px 0 !important;
+}
+
+/* 下拉框选项样式 */
+.custom-select-dropdown .el-select-dropdown__item {
+  color: #333 !important;
+  background: transparent !important;
+  transition: all 0.2s ease !important;
+  font-weight: 500 !important;
+  padding: 8px 16px !important;
+  font-size: 14px !important;
+  line-height: 1.4 !important;
+}
+
+.custom-select-dropdown .el-select-dropdown__item:hover {
+  background: rgba(102, 126, 234, 0.1) !important;
+  color: #667eea !important;
+}
+
+.custom-select-dropdown .el-select-dropdown__item.is-selected {
+  background: rgba(102, 126, 234, 0.15) !important;
+  color: #667eea !important;
+  font-weight: 600 !important;
+}
+
+/* 滚动条样式 - 应用到实际滚动的容器 */
+.custom-select-dropdown .el-select-dropdown__wrap::-webkit-scrollbar {
+  width: 6px !important;
+}
+
+.custom-select-dropdown .el-select-dropdown__wrap::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.1) !important;
+  border-radius: 3px !important;
+  margin: 4px 0 !important;
+}
+
+.custom-select-dropdown .el-select-dropdown__wrap::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.6) !important;
+  border-radius: 3px !important;
+  transition: background 0.3s ease !important;
+}
+
+.custom-select-dropdown .el-select-dropdown__wrap::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.8) !important;
+}
+
+
+
+/* 空状态样式 */
+.custom-select-dropdown .el-select-dropdown__empty {
+  color: #666 !important;
+  text-align: center !important;
+  padding: 16px !important;
+  font-size: 14px !important;
+}
+</style>
+
+<style>
+/* 注册页面专用下拉菜单样式 - 使用特定类名避免影响其他页面 */
+.custom-select-dropdown,
+.register-enterprise-dropdown {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(20px) !important;
+  -webkit-backdrop-filter: blur(20px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  border-radius: 10px !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3) !important;
+  animation: none !important;
+  transition: none !important;
+  opacity: 1 !important;
+  overflow: hidden !important;
+  padding: 0 !important;
+}
+
+.custom-select-dropdown .el-select-dropdown__item,
+.register-enterprise-dropdown .el-select-dropdown__item {
+  color: #fff !important;
+  background: transparent !important;
+  transition: all 0.2s ease !important;
+  margin: 0 !important;
+  padding: 12px 16px !important;
+  border-radius: 0 !important;
+}
+
+.custom-select-dropdown .el-select-dropdown__item:first-child,
+.register-enterprise-dropdown .el-select-dropdown__item:first-child {
+  border-top-left-radius: 6px !important;
+  border-top-right-radius: 6px !important;
+}
+
+.custom-select-dropdown .el-select-dropdown__item:last-child,
+.register-enterprise-dropdown .el-select-dropdown__item:last-child {
+  border-bottom-left-radius: 6px !important;
+  border-bottom-right-radius: 6px !important;
+}
+
+.custom-select-dropdown .el-select-dropdown__item:hover,
+.register-enterprise-dropdown .el-select-dropdown__item:hover {
+  background: rgba(255, 255, 255, 0.15) !important;
+}
+
+.custom-select-dropdown .el-select-dropdown__item.is-selected,
+.register-enterprise-dropdown .el-select-dropdown__item.is-selected {
+  background: rgba(255, 255, 255, 0.2) !important;
+  font-weight: 600 !important;
 }
 </style> 

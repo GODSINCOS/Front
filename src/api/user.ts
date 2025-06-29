@@ -3,6 +3,7 @@ import type {
   LoginParams,
   RegisterParams,
   ChangePasswordParams,
+  ResetPasswordParams,
   UpdateUserParams,
   PageParams,
   PageResult,
@@ -72,6 +73,15 @@ export function changePassword(data: ChangePasswordParams) {
   return request<ApiResponse>({
     url: '/users/current/password',
     method: 'put',
+    data
+  })
+}
+
+// 重置密码
+export function resetPassword(data: ResetPasswordParams) {
+  return request<ApiResponse>({
+    url: '/auth/reset-password',
+    method: 'post',
     data
   })
 }

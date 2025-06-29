@@ -53,8 +53,15 @@ service.interceptors.response.use(
     if (error.response) {
       const { status, data } = error.response
       
+      // 优化错误处理：不在拦截器中显示错误消息，让组件自己处理
+      // 但为错误对象添加更详细的信息
+      error.message = data?.message || error.message
+      error.status = status
+      error.data = data
+      
       switch (status) {
         case 401:
+          // 只有401时才在拦截器中处理，因为需要清除token并跳转
           ElMessage.error('未授权，请重新登录')
           sessionStorage.removeItem('token')
           sessionStorage.removeItem('userInfo')
@@ -62,25 +69,17 @@ service.interceptors.response.use(
           localStorage.removeItem('userInfo')
           window.location.href = '/login'
           break
-        case 403:
-          ElMessage.error('拒绝访问')
-          break
         case 404:
-          // 对于头像请求的404错误，不显示错误消息
-          if (!error.config.url.includes('/avatar')) {
-            ElMessage.error('请求地址出错')
+          // 对于头像请求的404错误，不抛出错误
+          if (error.config.url.includes('/avatar')) {
+            return Promise.resolve(null)
           }
           break
-        case 500:
-          ElMessage.error('服务器内部错误')
-          break
-        default:
-          ElMessage.error(data?.message || `连接错误${status}`)
       }
     } else if (error.code === 'ECONNABORTED') {
-      ElMessage.error('请求超时')
-    } else {
-      ElMessage.error('网络连接错误')
+      error.message = '请求超时'
+    } else if (!error.message) {
+      error.message = '网络连接错误'
     }
     
     return Promise.reject(error)

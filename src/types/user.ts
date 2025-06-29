@@ -13,6 +13,8 @@ export interface UserInfo {
   createTime: string
   updateTime: string
   roles?: string[] // 新增：角色列表
+  department?: string // 新增：部门信息
+  role?: string // 新增：单个角色信息
 }
 
 // 登录请求参数
@@ -33,6 +35,12 @@ export interface RegisterParams {
 // 修改密码请求参数
 export interface ChangePasswordParams {
   oldPassword: string
+  newPassword: string
+}
+
+// 重置密码请求参数
+export interface ResetPasswordParams {
+  username: string
   newPassword: string
 }
 

@@ -22,6 +22,12 @@ const routes: RouteRecordRaw[] = [
     meta: { title: '注册' }
   },
   {
+    path: '/enterprise-register',
+    name: 'EnterpriseRegister',
+    component: () => import('../views/auth/EnterpriseRegisterPage.vue'),
+    meta: { title: '企业注册' }
+  },
+  {
     path: '/',
     component: () => import('../layout/MainLayout.vue'),
       redirect: (to) => {
@@ -113,7 +119,7 @@ router.beforeEach(async (to, from, next) => {
   // 设置页面标题
   document.title = `${to.meta.title} - 测盟汇管理系统`
 
-  const whiteList = ['/login', '/register']
+  const whiteList = ['/login', '/register', '/enterprise-register']
   
   // 如果是白名单路径，直接放行
   if (whiteList.includes(to.path)) {
@@ -141,6 +147,31 @@ router.beforeEach(async (to, from, next) => {
     ElMessage.warning('请先登录')
     next('/login')
     return
+  }
+
+  // 权限检查 - 用户管理页面只有管理员可以访问
+  if (to.path === '/system/user') {
+    const userStore = useUserStore()
+    
+    // 如果用户信息不存在，先获取用户信息
+    if (!userStore.userInfo) {
+      try {
+        await userStore.fetchUserInfo()
+      } catch (error) {
+        console.error('获取用户信息失败:', error)
+        ElMessage.error('获取用户信息失败')
+        next('/login')
+        return
+      }
+    }
+    
+    // 检查是否有用户管理权限
+    if (!userStore.hasUserManagePermission) {
+      console.log('用户没有访问用户管理的权限')
+      ElMessage.warning('您没有权限访问该页面')
+      next('/dashboard')
+      return
+    }
   }
 
   console.log('token有效，继续路由')

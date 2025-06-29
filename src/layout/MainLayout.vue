@@ -24,7 +24,7 @@
             <el-icon><Setting /></el-icon>
             <span>系统管理</span>
           </template>
-          <el-menu-item index="/system/user">
+          <el-menu-item index="/system/user" v-if="userStore.hasUserManagePermission">
             <el-icon><UserFilled /></el-icon>
             <span>用户管理</span>
           </el-menu-item>
