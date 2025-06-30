@@ -2,10 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { ElMessage } from 'element-plus'
 
-import DynamicListView from '../views/news/DynamicListView.vue'
-import DynamicAddView from '../views/news/DynamicAddView.vue'
-import DynamicEditView from '../views/news/DynamicEditView.vue'
-import DynamicDetailView from '../views/news/DynamicDetailView.vue'
+// 移除静态导入，改用动态导入提高性能并避免类型错误
 import type { RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
@@ -58,6 +55,57 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '系统管理', icon: 'Setting' },
         children: [
           {
+            path: 'meeting',
+            name: 'MeetingList',
+            component: () => import('../views/meeting/MeetingListView.vue'),
+            meta: { title: '会议管理', icon: 'Calendar' }
+          },
+          {
+            path: 'meeting/add',
+            name: 'MeetingAdd',
+            component: () => import('../views/meeting/MeetingAddView.vue'),
+            meta: { title: '新增会议' }
+          },
+          {
+            path: 'meeting/edit/:id',
+            name: 'MeetingEdit',
+            component: () => import('../views/meeting/MeetingEditView.vue'),
+            props: true,
+            meta: { title: '编辑会议' }
+          },
+          {
+            path: 'meeting/detail/:id',
+            name: 'MeetingDetail',
+            component: () => import('../views/meeting/MeetingDetailView.vue'),
+            props: true,
+            meta: { title: '会议详情' }
+          },
+          {
+            path: 'meeting/audit',
+            name: 'MeetingAudit',
+            component: () => import('../views/meeting/MeetingAuditView.vue'),
+            meta: { title: '会议审核', icon: 'Check' }
+          },
+          {
+             path: 'course',
+             name: 'CourseManage',
+             component: () => import('../views/course/CourseManage.vue'),
+             meta: { title: '课程管理', icon: 'Notebook' }
+             },
+             {
+             path: 'course/detail/:id',
+             name: 'CourseDetail',
+             meta: { title: '课程详情' },
+             component: () => import('@/views/course/CourseDetailView.vue')
+             },
+             {
+             path: 'course/pending',
+             name: 'PendingCourse',
+             component: () => import('@/views/course/PendingCourse.vue'),
+             meta: { title: '待审核课程' }
+             },
+          
+          {
             path: 'user',
             name: 'UserManagement',
             component: () => import('../views/system/user/UserList.vue'),
@@ -66,26 +114,26 @@ const routes: RouteRecordRaw[] = [
           {
             path: 'dynamics',
             name: 'Dynamics',
-            component: DynamicListView,
+            component: () => import('../views/news/DynamicListView.vue'),
             meta: { title: '行业动态管理', icon: 'Promotion' }
           },
           {
             path: 'dynamics/add',
             name: 'DynamicsAdd',
-            component: DynamicAddView,
+            component: () => import('../views/news/DynamicAddView.vue'),
             meta: { title: '新增新闻' }
           },
           {
             path: 'dynamics/edit/:id',
             name: 'DynamicsEdit',
-            component: DynamicEditView,
+            component: () => import('../views/news/DynamicEditView.vue'),
             props: true,
             meta: { title: '编辑新闻' }
           },
           {
             path: 'dynamics/detail/:id',
             name: 'DynamicsDetail',
-            component: DynamicDetailView,
+            component: () => import('../views/news/DynamicDetailView.vue'),
             props: true,
             meta: { title: '新闻详情' }
           },

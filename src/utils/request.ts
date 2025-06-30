@@ -90,3 +90,9 @@ service.interceptors.response.use(
 export default function request<T = any>(config: AxiosRequestConfig): Promise<T> {
   return service.request(config)
 } 
+
+const API_BASE = 'http://localhost:8080'; // 后端端口
+export const getFullImageUrl = (imageUrl: string): string => {
+if (!imageUrl) return ''
+ return imageUrl.startsWith('http') ? imageUrl : API_BASE + imageUrl
+} 

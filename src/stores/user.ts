@@ -6,6 +6,9 @@ import type { UserInfo } from '@/types/user'
 export const useUserStore = defineStore('user', () => {
   const token = ref<string>(sessionStorage.getItem('token') || '')
   const userInfo = ref<UserInfo | null>(null)
+  
+  // 课程状态更新标志
+  const courseUpdateFlag = ref<number>(0)
 
   // 设置token
   const setToken = (newToken: string) => {
@@ -85,11 +88,17 @@ export const useUserStore = defineStore('user', () => {
     return isAdmin.value
   })
 
+  // 触发课程更新（用于页面间数据同步）
+  const triggerCourseUpdate = () => {
+    courseUpdateFlag.value = Date.now()
+  }
+
   // 登出
   const logout = () => {
     console.log('执行logout，清除用户状态')
     token.value = ''
     userInfo.value = null
+    courseUpdateFlag.value = 0
     sessionStorage.removeItem('token')
     sessionStorage.removeItem('userInfo')
     localStorage.removeItem('token') // 也清除localStorage中可能残留的token
@@ -100,11 +109,13 @@ export const useUserStore = defineStore('user', () => {
   return {
     token,
     userInfo,
+    courseUpdateFlag,
     setToken,
     getToken,
     fetchUserInfo,
     isAdmin,
     hasUserManagePermission,
+    triggerCourseUpdate,
     logout
   }
 }) 
