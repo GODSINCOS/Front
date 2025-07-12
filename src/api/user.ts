@@ -3,6 +3,7 @@ import type {
   LoginParams,
   RegisterParams,
   ChangePasswordParams,
+  ResetPasswordParams,
   UpdateUserParams,
   PageParams,
   PageResult,
@@ -27,6 +28,15 @@ export function login(data: LoginParams) {
 export function register(data: RegisterParams) {
   return request<ApiResponse>({
     url: '/auth/register',
+    method: 'post',
+    data
+  })
+}
+
+// 用户注册（新增）
+export function userRegister(data: Partial<UserInfo>) {
+  return request<ApiResponse>({
+    url: '/auth/user/register',
     method: 'post',
     data
   })
@@ -67,6 +77,15 @@ export function changePassword(data: ChangePasswordParams) {
   })
 }
 
+// 重置密码
+export function resetPassword(data: ResetPasswordParams) {
+  return request<ApiResponse>({
+    url: '/auth/reset-password',
+    method: 'post',
+    data
+  })
+}
+
 // 获取用户列表
 export function getUserList(params: UserListParams) {
   return request<ApiResponse<PageResult<UserInfo>>>({
@@ -94,11 +113,74 @@ export function updateUser(id: number, data: Partial<UserInfo>) {
   })
 }
 
+// 删除用户
+export function deleteUser(id: number) {
+  return request<ApiResponse>({
+    url: `/users/${id}`,
+    method: 'delete'
+  })
+}
+
+// 批量删除用户
+export function batchDeleteUsers(ids: number[]) {
+  return request<ApiResponse>({
+    url: '/users/batch',
+    method: 'delete',
+    data: { ids }
+  })
+}
+
 // 修改用户状态
 export function changeUserStatus(id: number, status: number) {
   return request<ApiResponse>({
     url: `/users/${id}/status`,
     method: 'put',
     data: { status }
+  })
+}
+
+// 批量修改用户状态
+export function batchChangeUserStatus(ids: number[], status: number) {
+  return request<ApiResponse>({
+    url: '/users/batch/status',
+    method: 'put',
+    data: { ids, status }
+  })
+}
+
+// 上传头像
+export function uploadAvatar(formData: FormData) {
+  return request<ApiResponse>({
+    url: '/users/current/avatar',
+    method: 'post',
+    data: formData,
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }
+  })
+}
+
+// 获取当前用户头像
+export function getCurrentUserAvatar() {
+  return request<Blob>({
+    url: '/users/current/avatar',
+    method: 'get',
+    responseType: 'blob'
+  }).catch(error => {
+    // 如果是404错误，表示用户没有头像，返回null
+    if (error.response && error.response.status === 404) {
+      return null
+    }
+    // 其他错误继续抛出
+    throw error
+  })
+}
+
+// 获取指定用户头像
+export function getUserAvatar(id: number) {
+  return request<Blob>({
+    url: `/users/${id}/avatar`,
+    method: 'get',
+    responseType: 'blob'
   })
 } 

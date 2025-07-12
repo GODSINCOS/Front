@@ -5,13 +5,16 @@ export interface UserInfo {
   nickname: string
   phone: string
   email: string
-  gender: number
+  gender: string
+  enterpriseId?: number
+  enterpriseName?: string
   status: number
-  department: string
-  role: string
-  avatar: string
+  avatar: string // 头像Base64数据或URL
   createTime: string
   updateTime: string
+  roles?: string[] // 新增：角色列表
+  department?: string // 新增：部门信息
+  role?: string // 新增：单个角色信息
 }
 
 // 登录请求参数
@@ -35,18 +38,28 @@ export interface ChangePasswordParams {
   newPassword: string
 }
 
+// 重置密码请求参数
+export interface ResetPasswordParams {
+  username: string
+  newPassword: string
+}
+
 // 更新用户信息请求参数
 export interface UpdateUserParams {
   nickname: string
   phone: string
   email: string
-  gender: number
+  gender: string
 }
 
 // 用户列表查询参数
 export interface UserListParams {
   page: number
   pageSize: number
+  username?: string
+  phone?: string
+  enterpriseName?: string
+  status?: number
   query?: string
 }
 
